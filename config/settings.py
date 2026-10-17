@@ -17,16 +17,31 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def _env_list(name, default):
+    """Lee una lista separada por comas desde el entorno."""
+    value = os.environ.get(name, default)
+    return [item.strip() for item in value.split(',') if item.strip()]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)8&3synnq3y4=9lktde&)uwh4q&h+=*d*d8b_jngxtlnbxf$%*'
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-)8&3synnq3y4=9lktde&)uwh4q&h+=*d*d8b_jngxtlnbxf$%*',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = _env_list(
+    'ALLOWED_HOSTS',
+    '.pythonanywhere.com,localhost,127.0.0.1,*',
+)
+
+# Orígenes de confianza para el admin detrás de HTTPS
+CSRF_TRUSTED_ORIGINS = _env_list('CSRF_TRUSTED_ORIGINS', 'https://*.pythonanywhere.com')
 
 
 # Application definition
@@ -43,6 +58,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -120,6 +136,19 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Destino de collectstatic (PythonAnywhere sirve /static/ desde aquí)
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Django >= 5.1 eliminó STATICFILES_STORAGE: el storage se define en STORAGES
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 # Media files (user uploads)
 MEDIA_URL = '/media/'
