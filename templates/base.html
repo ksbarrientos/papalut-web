@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Papalut{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'papalut-bg': '#F7F1E7',
+            'papalut-terracota': '#C97961',
+            'papalut-salvia': '#8A9A82',
+            'papalut-earth': '#5A4035',
+            'papalut-mustard': '#C5A46D',
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-papalut-bg text-papalut-earth font-sans antialiased min-h-screen flex flex-col">
+
+  <header class="sticky top-0 z-50 bg-papalut-bg/90 backdrop-blur border-b border-papalut-mustard/30">
+    <nav class="max-w-6xl mx-auto flex items-center justify-between gap-4 px-6 py-4">
+      <a href="{% url 'inicio' %}" class="flex items-center gap-3">
+        {% if site_logo %}
+          <img src="{% static site_logo %}" alt="Papalut" class="h-9 w-auto object-contain">
+        {% endif %}
+        <span class="font-serif text-2xl tracking-[0.3em] font-semibold">PAPALUT</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-xs uppercase tracking-[0.2em]">
+        <a href="{% url 'inicio' %}" class="hover:text-papalut-terracota transition">Catálogo</a>
+        <a href="{% url 'calculadoras' %}" class="hover:text-papalut-terracota transition">Calculadoras de Taller</a>
+      </div>
+      <a href="https://wa.me/{{ whatsapp_number }}" target="_blank" rel="noopener"
+         class="bg-papalut-terracota text-papalut-bg text-xs uppercase tracking-[0.2em] px-4 py-2 rounded-full hover:bg-papalut-earth transition">
+        Contacto
+      </a>
+    </nav>
+  </header>
+
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="mt-24 border-t border-papalut-mustard/30 bg-papalut-earth text-papalut-bg">
+    <div class="max-w-6xl mx-auto px-6 py-12 flex flex-col items-center gap-3 text-center">
+      <span class="font-serif text-2xl tracking-[0.3em]">PAPALUT</span>
+      <p class="font-serif italic text-lg text-papalut-mustard">"Aromas que transforman espacios"</p>
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

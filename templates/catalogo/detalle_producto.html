@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ producto.nombre }} · Papalut{% endblock %}
+
+{% block content %}
+<section class="max-w-6xl mx-auto px-6 py-12">
+
+  <a href="{% url 'inicio' %}" class="inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-papalut-salvia hover:text-papalut-terracota transition mb-10">
+    &larr; Volver al Catálogo
+  </a>
+
+  <div class="grid gap-12 lg:grid-cols-2">
+
+    <!-- Galería -->
+    <div>
+      <div class="relative aspect-square bg-[#FAF7F2] rounded-2xl border border-papalut-mustard/30 flex items-center justify-center overflow-hidden">
+        {% if producto.imagen %}
+          <img id="imagen-principal" src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-full object-contain p-4 transition duration-500">
+        {% elif producto.imagenes_secundarias.all %}
+          <img id="imagen-principal" src="{{ producto.imagenes_secundarias.all.0.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-full object-contain p-4 transition duration-500">
+        {% else %}
+          <span class="font-serif text-8xl text-papalut-terracota/50">{{ producto.nombre|first }}</span>
+        {% endif %}
+
+        {% if producto.imagen or producto.imagenes_secundarias.all %}
+          <button type="button" id="galeria-prev" hidden aria-label="Imagen anterior"
+                  class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-papalut-bg/80 border border-papalut-mustard/40 text-papalut-earth text-2xl leading-none hover:bg-papalut-terracota hover:text-papalut-bg transition">&lsaquo;</button>
+          <button type="button" id="galeria-next" hidden aria-label="Imagen siguiente"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-papalut-bg/80 border border-papalut-mustard/40 text-papalut-earth text-2xl leading-none hover:bg-papalut-terracota hover:text-papalut-bg transition">&rsaquo;</button>
+        {% endif %}
+      </div>
+
+      {% if producto.imagen or producto.imagenes_secundarias.all %}
+        <div id="galeria-miniaturas" hidden>
+          <div class="flex flex-wrap gap-3 mt-4">
+            {% if producto.imagen %}
+              <button type="button" class="miniatura w-20 h-20 rounded-xl border-2 border-transparent bg-[#FAF7F2] overflow-hidden hover:border-papalut-terracota transition" data-src="{{ producto.imagen.url }}">
+                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }} - portada" class="w-full h-full object-contain p-1">
+              </button>
+            {% endif %}
+            {% for foto in producto.imagenes_secundarias.all %}
+              <button type="button" class="miniatura w-20 h-20 rounded-xl border-2 border-transparent bg-[#FAF7F2] overflow-hidden hover:border-papalut-terracota transition" data-src="{{ foto.imagen.url }}">
+                <img src="{{ foto.imagen.url }}" alt="{{ producto.nombre }} - imagen {{ forloop.counter }}" class="w-full h-full object-contain p-1">
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Información -->
+    <div class="flex flex-col">
+      <span class="text-xs uppercase tracking-[0.3em] text-papalut-salvia mb-3">{{ producto.categoria.nombre }}</span>
+      <h1 class="font-serif text-4xl md:text-5xl font-semibold mb-4">{{ producto.nombre }}</h1>
+      {% if producto.destacado %}
+        <span class="self-start text-[10px] uppercase tracking-widest bg-papalut-mustard/30 text-papalut-earth px-3 py-1 rounded-full mb-4">Destacado</span>
+      {% endif %}
+
+      <p class="opacity-80 mb-6">{{ producto.descripcion }}</p>
+
+      <dl class="text-sm space-y-2 mb-8">
+        {% if producto.notas_olfativas %}
+          <div class="flex gap-2"><dt class="font-medium text-papalut-terracota">Aroma:</dt><dd class="opacity-80">{{ producto.notas_olfativas }}</dd></div>
+        {% endif %}
+        {% if producto.dimensiones %}
+          <div class="flex gap-2"><dt class="font-medium text-papalut-terracota">Medidas:</dt><dd class="opacity-80">{{ producto.dimensiones }}</dd></div>
+        {% endif %}
+      </dl>
+
+      {% if producto.precio_unitario or producto.precio_docena or producto.precio_mayoreo and producto.mostrar_precio_mayoreo %}
+        <div class="flex flex-wrap gap-4 mb-8">
+          {% if producto.precio_unitario %}
+            <div class="flex-1 min-w-[10rem] bg-white/60 rounded-2xl border border-papalut-mustard/30 p-5 text-center">
+              <p class="text-xs uppercase tracking-widest opacity-60 mb-1">Individual</p>
+              <p class="font-serif text-2xl font-semibold text-papalut-terracota">${{ producto.precio_unitario }}</p>
+            </div>
+          {% endif %}
+          {% if producto.precio_docena %}
+            <div class="flex-1 min-w-[10rem] bg-white/60 rounded-2xl border border-papalut-mustard/30 p-5 text-center">
+              <p class="text-xs uppercase tracking-widest opacity-60 mb-1">Por Docena</p>
+              <p class="font-serif text-2xl font-semibold text-papalut-salvia">${{ producto.precio_docena }}</p>
+            </div>
+          {% endif %}
+          {% if producto.precio_mayoreo and producto.mostrar_precio_mayoreo %}
+            <div class="flex-1 min-w-[10rem] bg-white/60 rounded-2xl border border-papalut-mustard/30 p-5 text-center">
+              <p class="text-xs uppercase tracking-widest opacity-60 mb-1">Mayorista</p>
+              <p class="font-serif text-2xl font-semibold text-papalut-mustard">${{ producto.precio_mayoreo }}</p>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <a href="{{ producto.whatsapp_url_detalle }}" target="_blank" rel="noopener"
+         class="mt-auto inline-flex items-center justify-center gap-2 bg-papalut-salvia text-white text-sm uppercase tracking-widest px-6 py-4 rounded-full hover:bg-papalut-earth transition">
+        Consultar precios por WhatsApp
+      </a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const imagenPrincipal = document.getElementById('imagen-principal');
+  const miniaturas = Array.from(document.querySelectorAll('.miniatura'));
+  const imagenes = miniaturas.map((miniatura) => miniatura.dataset.src);
+  const controles = [
+    document.getElementById('galeria-prev'),
+    document.getElementById('galeria-next'),
+    document.getElementById('galeria-miniaturas'),
+  ];
+
+  if (imagenes.length > 1) {
+    controles.forEach((control) => { if (control) control.hidden = false; });
+  }
+
+  let indice = 0;
+
+  function mostrar(posicion) {
+    if (!imagenes.length) return;
+    indice = (posicion + imagenes.length) % imagenes.length;
+    if (imagenPrincipal) imagenPrincipal.src = imagenes[indice];
+    miniaturas.forEach((miniatura, pos) => {
+      miniatura.classList.toggle('border-papalut-terracota', pos === indice);
+    });
+  }
+
+  miniaturas.forEach((miniatura, pos) => {
+    miniatura.addEventListener('click', () => mostrar(pos));
+  });
+
+  const anterior = document.getElementById('galeria-prev');
+  const siguiente = document.getElementById('galeria-next');
+  if (anterior) anterior.addEventListener('click', () => mostrar(indice - 1));
+  if (siguiente) siguiente.addEventListener('click', () => mostrar(indice + 1));
+
+  mostrar(0);
+</script>
+{% endblock %}
