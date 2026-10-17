@@ -55,6 +55,9 @@
       {% if producto.destacado %}
         <span class="self-start text-[10px] uppercase tracking-widest bg-papalut-mustard/30 text-papalut-earth px-3 py-1 rounded-full mb-4">Destacado</span>
       {% endif %}
+      {% if producto.en_promocion %}
+        <span class="self-start text-[10px] font-semibold uppercase tracking-widest bg-papalut-terracota text-papalut-bg px-3 py-1 rounded-full mb-4">🔥 Oferta</span>
+      {% endif %}
 
       <p class="opacity-80 mb-6">{{ producto.descripcion }}</p>
 
@@ -67,12 +70,19 @@
         {% endif %}
       </dl>
 
-      {% if producto.precio_unitario or producto.precio_docena or producto.precio_mayoreo and producto.mostrar_precio_mayoreo %}
+      {% if producto.precio_unitario or producto.precio_oferta or producto.precio_docena or producto.precio_mayoreo and producto.mostrar_precio_mayoreo %}
         <div class="flex flex-wrap gap-4 mb-8">
-          {% if producto.precio_unitario %}
+          {% if producto.precio_unitario or producto.precio_oferta %}
             <div class="flex-1 min-w-[10rem] bg-white/60 rounded-2xl border border-papalut-mustard/30 p-5 text-center">
               <p class="text-xs uppercase tracking-widest opacity-60 mb-1">Individual</p>
-              <p class="font-serif text-2xl font-semibold text-papalut-terracota">${{ producto.precio_unitario }}</p>
+              {% if producto.precio_oferta %}
+                <p class="font-serif text-2xl font-semibold text-papalut-terracota">${{ producto.precio_oferta }}</p>
+                {% if producto.precio_unitario %}
+                  <p class="text-xs opacity-60 line-through">${{ producto.precio_unitario }}</p>
+                {% endif %}
+              {% else %}
+                <p class="font-serif text-2xl font-semibold text-papalut-terracota">${{ producto.precio_unitario }}</p>
+              {% endif %}
             </div>
           {% endif %}
           {% if producto.precio_docena %}

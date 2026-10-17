@@ -7,7 +7,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from catalogo.models import Categoria, Producto  # noqa: E402
+from catalogo.models import Categoria, ConfiguracionSitio, Producto, RedSocial  # noqa: E402
 
 CATEGORIAS = [
     {
@@ -180,6 +180,29 @@ def seed():
 
     print(f'Categorías: {Categoria.objects.count()}')
     print(f'Productos: {Producto.objects.count()}')
+
+    configuracion = ConfiguracionSitio.get_solo()
+    if configuracion.numero_whatsapp in ('', '50300000000'):
+        configuracion.numero_whatsapp = '50378538605'
+        configuracion.save()
+    print(f'Configuración: {configuracion.nombre_tienda} ({configuracion.numero_whatsapp})')
+
+    if not RedSocial.objects.exists():
+        RedSocial.objects.bulk_create([
+            RedSocial(
+                nombre='Instagram',
+                plataforma=RedSocial.Plataforma.INSTAGRAM,
+                url='https://instagram.com/papalut',
+                orden=1,
+            ),
+            RedSocial(
+                nombre='WhatsApp',
+                plataforma=RedSocial.Plataforma.WHATSAPP,
+                url='https://wa.me/50378538605',
+                orden=2,
+            ),
+        ])
+    print(f'Redes sociales: {RedSocial.objects.count()}')
 
 
 if __name__ == '__main__':

@@ -3,27 +3,61 @@
 {% block title %}Calculadoras de Taller · Papalut{% endblock %}
 
 {% block content %}
-<section class="max-w-6xl mx-auto px-6 py-16">
-  <header class="text-center mb-14">
+<section class="max-w-5xl mx-auto px-6 py-16">
+  <header class="text-center mb-12">
     <p class="uppercase tracking-[0.4em] text-xs text-papalut-terracota mb-3">Herramientas de taller</p>
     <h1 class="font-serif text-5xl font-semibold mb-3">Calculadoras Papalut</h1>
     <p class="opacity-80 max-w-2xl mx-auto">
-      Ajusta tus insumos sin recargar la página. Los resultados se actualizan al instante.
+      Guías sencillas para medir tus insumos como un artesano. Los resultados se
+      actualizan al instante mientras escribes.
     </p>
   </header>
+
+  <!-- Regla de oro -->
+  <div class="mb-12 bg-papalut-salvia/10 border border-papalut-salvia/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+    <span class="text-4xl" aria-hidden="true">💧</span>
+    <div>
+      <p class="font-serif text-xl font-semibold mb-1">Regla de oro del taller</p>
+      <p class="opacity-80">
+        <strong>1 g de agua = 1 ml = 1 cm³.</strong> Pesa agua en tu báscula y obtienes
+        el volumen exacto de tu recipiente o molde.
+      </p>
+    </div>
+  </div>
 
   <div class="grid gap-8 lg:grid-cols-2">
 
     <!-- Calculadora 1: cera para velas -->
     <section class="bg-white/60 rounded-2xl border border-papalut-mustard/30 p-8">
-      <h2 class="font-serif text-2xl font-semibold mb-1">Cera para velas en cuenco</h2>
-      <p class="text-sm opacity-70 mb-6">Densidad de cera de soya: 0.86 g/ml.</p>
+      <div class="flex items-center gap-3 mb-5">
+        <span class="text-3xl" aria-hidden="true">🕯️</span>
+        <h2 class="font-serif text-2xl font-semibold">Cera para velas</h2>
+      </div>
+
+      <details open class="mb-6 bg-papalut-bg rounded-xl p-5">
+        <summary class="cursor-pointer font-medium text-papalut-terracota">Cómo medir tu recipiente (método del agua)</summary>
+        <ol class="mt-4 space-y-3 text-sm">
+          <li class="flex gap-3">
+            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-papalut-terracota text-papalut-bg text-sm font-semibold shrink-0">1</span>
+            <span>Coloca tu cuenco vacío en una báscula y presiona <strong>TARA</strong> (0 g).</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-papalut-terracota text-papalut-bg text-sm font-semibold shrink-0">2</span>
+            <span>Llénalo con agua hasta donde deseas que llegue la vela.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-papalut-terracota text-papalut-bg text-sm font-semibold shrink-0">3</span>
+            <span>Los gramos que marque la báscula son exactamente los <strong>ml</strong> que debes ingresar abajo.</span>
+          </li>
+        </ol>
+      </details>
 
       <div class="space-y-5">
         <label class="block">
-          <span class="text-sm font-medium">Volumen del contenedor (ml)</span>
-          <input id="cera-ml" type="number" min="0" step="10" value="200"
+          <span class="text-sm font-medium">Agua que cabe en tu recipiente (gramos o ml)</span>
+          <input id="cera-agua" type="number" min="0" step="10" value="200"
                  class="mt-1 w-full rounded-lg border border-papalut-mustard/50 bg-papalut-bg px-4 py-2 focus:outline-none focus:border-papalut-terracota">
+          <span class="text-xs opacity-60">Recuerda: 1 gramo de agua en tu báscula = 1 ml.</span>
         </label>
 
         <label class="block">
@@ -48,34 +82,85 @@
           <dd class="font-serif text-2xl font-semibold text-papalut-mustard"><span id="cera-esencia">0</span> g</dd>
         </div>
       </dl>
+
+      <p class="text-xs opacity-70 mt-6 bg-papalut-mustard/10 rounded-lg p-3">
+        La cera es más ligera que el agua (densidad ≈ 0.86), por eso necesitas un poco
+        menos de gramos de cera que de agua.
+      </p>
     </section>
 
     <!-- Calculadora 2: mezcla para macetas de cemento -->
     <section class="bg-white/60 rounded-2xl border border-papalut-mustard/30 p-8">
-      <h2 class="font-serif text-2xl font-semibold mb-1">Mezcla para macetas de cemento</h2>
-      <p class="text-sm opacity-70 mb-6">Densidad de la mezcla seca: 2.1 g/cm³.</p>
+      <div class="flex items-center gap-3 mb-5">
+        <span class="text-3xl" aria-hidden="true">🏺</span>
+        <h2 class="font-serif text-2xl font-semibold">Mezcla para macetas de cemento</h2>
+      </div>
 
-      <div class="space-y-5">
+      <details open class="mb-6 bg-papalut-bg rounded-xl p-5">
+        <summary class="cursor-pointer font-medium text-papalut-terracota">Cómo hallar el volumen neto del molde</summary>
+        <div class="mt-4 space-y-3 text-sm">
+          <div>
+            <p class="font-medium text-papalut-terracota">Método 1 · Directo</p>
+            <p class="opacity-80">Llena con agua solo el espacio hueco que ocupará la mezcla (paredes y base). Los gramos de agua equivalen directamente a los cm³ de volumen neto.</p>
+          </div>
+          <div>
+            <p class="font-medium text-papalut-terracota">Método 2 · Por diferencia de peso</p>
+            <p class="opacity-80">Pesa el molde lleno con agua y réstale el molde vacío. Esa diferencia en gramos es tu volumen neto en cm³.</p>
+          </div>
+        </div>
+      </details>
+
+      <fieldset class="mb-5">
+        <legend class="text-sm font-medium mb-2">¿Cómo obtuviste el volumen neto?</legend>
+        <div class="flex flex-wrap gap-3">
+          <label class="flex-1 min-w-[10rem] cursor-pointer">
+            <input type="radio" name="modo" value="directo" class="peer sr-only" checked>
+            <span class="block text-center text-sm rounded-lg border border-papalut-mustard/50 px-4 py-2 peer-checked:bg-papalut-earth peer-checked:text-papalut-bg transition">Directo</span>
+          </label>
+          <label class="flex-1 min-w-[10rem] cursor-pointer">
+            <input type="radio" name="modo" value="tara" class="peer sr-only">
+            <span class="block text-center text-sm rounded-lg border border-papalut-mustard/50 px-4 py-2 peer-checked:bg-papalut-earth peer-checked:text-papalut-bg transition">Por tara</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div id="cemento-directo" class="space-y-5">
         <label class="block">
-          <span class="text-sm font-medium">Volumen neto del molde (cm³)</span>
-          <input id="cemento-cm3" type="number" min="0" step="50" value="1000"
+          <span class="text-sm font-medium">Gramos de agua que caben en el molde (1 g = 1 cm³)</span>
+          <input id="cemento-agua" type="number" min="0" step="50" value="1000"
                  class="mt-1 w-full rounded-lg border border-papalut-mustard/50 bg-papalut-bg px-4 py-2 focus:outline-none focus:border-papalut-terracota">
         </label>
-
-        <fieldset>
-          <legend class="text-sm font-medium mb-2">Proporción cemento : arena</legend>
-          <div class="flex gap-3">
-            <label class="flex-1 cursor-pointer">
-              <input type="radio" name="proporcion" value="1:2" class="peer sr-only" checked>
-              <span class="block text-center rounded-lg border border-papalut-mustard/50 px-4 py-2 peer-checked:bg-papalut-earth peer-checked:text-papalut-bg transition">1:2 estándar</span>
-            </label>
-            <label class="flex-1 cursor-pointer">
-              <input type="radio" name="proporcion" value="1:1" class="peer sr-only">
-              <span class="block text-center rounded-lg border border-papalut-mustard/50 px-4 py-2 peer-checked:bg-papalut-earth peer-checked:text-papalut-bg transition">1:1 alta resistencia</span>
-            </label>
-          </div>
-        </fieldset>
       </div>
+
+      <div id="cemento-tara" class="space-y-5" hidden>
+        <label class="block">
+          <span class="text-sm font-medium">Peso del molde lleno con agua (g)</span>
+          <input id="molde-lleno" type="number" min="0" step="50" value="0"
+                 class="mt-1 w-full rounded-lg border border-papalut-mustard/50 bg-papalut-bg px-4 py-2 focus:outline-none focus:border-papalut-terracota">
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Peso del molde vacío (g)</span>
+          <input id="molde-vacio" type="number" min="0" step="50" value="0"
+                 class="mt-1 w-full rounded-lg border border-papalut-mustard/50 bg-papalut-bg px-4 py-2 focus:outline-none focus:border-papalut-terracota">
+        </label>
+        <p class="text-sm bg-papalut-salvia/10 rounded-lg p-3">
+          Volumen neto calculado: <strong class="text-papalut-salvia"><span id="volumen-neto">0</span> cm³</strong>
+        </p>
+      </div>
+
+      <fieldset class="mt-6">
+        <legend class="text-sm font-medium mb-2">Proporción cemento : arena</legend>
+        <div class="flex flex-wrap gap-3">
+          <label class="flex-1 min-w-[10rem] cursor-pointer">
+            <input type="radio" name="proporcion" value="1:2" class="peer sr-only" checked>
+            <span class="block text-center text-sm rounded-lg border border-papalut-mustard/50 px-4 py-2 peer-checked:bg-papalut-earth peer-checked:text-papalut-bg transition">1:2 estándar</span>
+          </label>
+          <label class="flex-1 min-w-[10rem] cursor-pointer">
+            <input type="radio" name="proporcion" value="1:1" class="peer sr-only">
+            <span class="block text-center text-sm rounded-lg border border-papalut-mustard/50 px-4 py-2 peer-checked:bg-papalut-earth peer-checked:text-papalut-bg transition">1:1 alta resistencia</span>
+          </label>
+        </div>
+      </fieldset>
 
       <dl class="mt-8 grid grid-cols-2 gap-3 text-center">
         <div class="bg-papalut-bg rounded-xl p-4">
@@ -84,7 +169,7 @@
         </div>
         <div class="bg-papalut-bg rounded-xl p-4">
           <dt class="text-xs uppercase tracking-widest opacity-60 mb-1">Agua (a/c 0.38)</dt>
-          <dd class="font-serif text-2xl font-semibold text-papalut-salvia"><span id="cemento-agua">0</span> g</dd>
+          <dd class="font-serif text-2xl font-semibold text-papalut-salvia"><span id="cemento-agua-out">0</span> g</dd>
         </div>
         <div class="bg-papalut-bg rounded-xl p-4">
           <dt class="text-xs uppercase tracking-widest opacity-60 mb-1">Cemento</dt>
@@ -95,6 +180,11 @@
           <dd class="font-serif text-2xl font-semibold text-papalut-earth"><span id="arena-parte">0</span> g</dd>
         </div>
       </dl>
+
+      <p class="text-xs opacity-70 mt-6 bg-papalut-mustard/10 rounded-lg p-3">
+        El concreto pesa aproximadamente 2.1 veces más que el agua, por eso los insumos
+        secos suman más peso que el agua medida.
+      </p>
     </section>
 
   </div>
@@ -109,36 +199,58 @@
 
   const numero = (id) => parseFloat(document.getElementById(id).value) || 0;
   const pintar = (id, valor) => { document.getElementById(id).textContent = valor.toFixed(1); };
+  const modoCemento = () => document.querySelector('input[name="modo"]:checked').value;
 
   function calcularCera() {
-    const ml = numero('cera-ml');
+    const agua = numero('cera-agua');
     const porcentaje = Math.min(10, Math.max(6, numero('cera-pct')));
-    const total = ml * DENSIDAD_CERA;
+    const total = agua * DENSIDAD_CERA;
     const esencia = total * porcentaje / 100;
     pintar('cera-total', total);
     pintar('cera-pura', total - esencia);
     pintar('cera-esencia', esencia);
   }
 
+  function volumenNeto() {
+    if (modoCemento() === 'tara') {
+      return Math.max(0, numero('molde-lleno') - numero('molde-vacio'));
+    }
+    return numero('cemento-agua');
+  }
+
   function calcularCemento() {
-    const cm3 = numero('cemento-cm3');
+    const volumen = volumenNeto();
     const proporcion = document.querySelector('input[name="proporcion"]:checked').value;
-    const total = cm3 * DENSIDAD_MEZCLA;
+    const total = volumen * DENSIDAD_MEZCLA;
     const cemento = proporcion === '1:1' ? total / 2 : total / 3;
+
+    pintar('volumen-neto', volumen);
     pintar('cemento-total', total);
     pintar('cemento-parte', cemento);
     pintar('arena-parte', total - cemento);
-    pintar('cemento-agua', cemento * RATIO_AGUA_CEMENTO);
+    pintar('cemento-agua-out', cemento * RATIO_AGUA_CEMENTO);
   }
 
-  document.getElementById('cera-ml').addEventListener('input', calcularCera);
+  function actualizarModo() {
+    const porTara = modoCemento() === 'tara';
+    document.getElementById('cemento-directo').hidden = porTara;
+    document.getElementById('cemento-tara').hidden = !porTara;
+    calcularCemento();
+  }
+
+  document.getElementById('cera-agua').addEventListener('input', calcularCera);
   document.getElementById('cera-pct').addEventListener('input', calcularCera);
-  document.getElementById('cemento-cm3').addEventListener('input', calcularCemento);
+  ['cemento-agua', 'molde-lleno', 'molde-vacio'].forEach((id) => {
+    document.getElementById(id).addEventListener('input', calcularCemento);
+  });
+  document.querySelectorAll('input[name="modo"]').forEach((radio) => {
+    radio.addEventListener('change', actualizarModo);
+  });
   document.querySelectorAll('input[name="proporcion"]').forEach((radio) => {
     radio.addEventListener('change', calcularCemento);
   });
 
   calcularCera();
-  calcularCemento();
+  actualizarModo();
 </script>
 {% endblock %}

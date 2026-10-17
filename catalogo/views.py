@@ -8,6 +8,7 @@ def inicio(request):
     categoria_slug = request.GET.get('categoria')
     categoria_seleccionada = None
 
+    promociones = request.GET.get('promociones') == '1'
     productos = Producto.objects.filter(activo=True).select_related('categoria')
 
     if categoria_slug:
@@ -15,10 +16,14 @@ def inicio(request):
         if categoria_seleccionada:
             productos = productos.filter(categoria=categoria_seleccionada)
 
+    if promociones:
+        productos = productos.filter(en_promocion=True)
+
     context = {
         'categorias': categorias,
         'productos': productos,
         'categoria_seleccionada': categoria_seleccionada,
+        'promociones': promociones,
     }
     return render(request, 'catalogo/inicio.html', context)
 

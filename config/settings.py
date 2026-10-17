@@ -125,9 +125,6 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# WhatsApp contact number (international format, no '+')
-WHATSAPP_NUMBER = os.getenv('WHATSAPP_NUMBER', '50378538605')
-
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration

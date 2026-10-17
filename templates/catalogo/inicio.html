@@ -1,83 +1,137 @@
 {% extends 'base.html' %}
-
 {% block title %}Catálogo · Papalut{% endblock %}
-
 {% block content %}
-<section class="relative overflow-hidden bg-gradient-to-b from-papalut-bg to-papalut-mustard/20">
+<section
+  class="relative overflow-hidden bg-gradient-to-b from-papalut-bg to-papalut-mustard/20"
+>
   <div class="max-w-6xl mx-auto px-6 py-20 text-center">
-    <p class="uppercase tracking-[0.4em] text-xs text-papalut-terracota mb-4">Hecho a mano</p>
-    <h1 class="font-serif text-5xl md:text-6xl font-semibold mb-4">Catálogo Papalut</h1>
+    <p class="uppercase tracking-[0.4em] text-xs text-papalut-terracota mb-4">
+      Hecho a mano
+    </p>
+    <h1 class="font-serif text-5xl md:text-6xl font-semibold mb-4">
+      Catálogo Papalut
+    </h1>
     <p class="max-w-2xl mx-auto text-lg opacity-80">
       Velas, chocolates, plantas, macetas y jabones creados en pequeños lotes,
       con la calma y el detalle de lo artesanal.
     </p>
-    <p class="mt-4 font-serif italic text-papalut-salvia">Aromas que transforman espacios.</p>
+    <p class="mt-4 font-serif italic text-papalut-salvia">
+      Detalles que transforman momentos.
+    </p>
   </div>
 </section>
 
 <section class="relative z-10 max-w-6xl mx-auto px-6">
   <div class="flex flex-wrap gap-3 justify-center -mt-6">
-    <a href="{% url 'inicio' %}"
-       class="inline-flex items-center justify-center px-5 py-2 rounded-full text-sm border transition
-              {% if not categoria_seleccionada %}bg-papalut-earth text-papalut-bg border-papalut-earth{% else %}bg-white/60 border-papalut-mustard/40 hover:border-papalut-terracota hover:text-papalut-terracota{% endif %}">
+    <a
+      href="{% url 'inicio' %}"
+      class="inline-flex items-center justify-center px-5 py-2 rounded-full text-sm border transition {% if not categoria_seleccionada %}bg-papalut-earth text-papalut-bg border-papalut-earth{% else %}bg-white/60 border-papalut-mustard/40 hover:border-papalut-terracota hover:text-papalut-terracota{% endif %}"
+    >
       Todos
     </a>
     {% for c in categorias %}
-      <a href="?categoria={{ c.slug }}"
-         class="inline-flex items-center justify-center px-5 py-2 rounded-full text-sm border transition
-                {% if categoria_seleccionada == c %}bg-papalut-earth text-papalut-bg border-papalut-earth{% else %}bg-white/60 border-papalut-mustard/40 hover:border-papalut-terracota hover:text-papalut-terracota{% endif %}">
-        {{ c.nombre }}
-      </a>
+    <a
+      href="?categoria={{ c.slug }}"
+      class="inline-flex items-center justify-center px-5 py-2 rounded-full text-sm border transition {% if categoria_seleccionada == c %}bg-papalut-earth text-papalut-bg border-papalut-earth{% else %}bg-white/60 border-papalut-mustard/40 hover:border-papalut-terracota hover:text-papalut-terracota{% endif %}"
+    >
+      {{ c.nombre }}
+    </a>
     {% endfor %}
+    <a
+      href="?promociones=1"
+      class="inline-flex items-center justify-center px-5 py-2 rounded-full text-sm border transition {% if promociones %}bg-papalut-terracota text-papalut-bg border-papalut-terracota{% else %}bg-papalut-mustard/20 border-papalut-mustard/50 hover:border-papalut-terracota hover:text-papalut-terracota{% endif %}"
+    >
+      🔥 Rebajas / Liquidación
+    </a>
   </div>
 
   <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-12">
     {% for p in productos %}
-      <article class="group flex flex-col bg-white/60 rounded-2xl border border-papalut-mustard/30 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition">
-        <a href="{% url 'detalle_producto' p.slug %}" class="aspect-square bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
-          {% if p.imagen %}
-            <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="w-full h-full object-contain p-2 group-hover:scale-105 transition duration-500">
-          {% else %}
-            <span class="font-serif text-6xl text-papalut-terracota/60">{{ p.nombre|first }}</span>
+    <article
+      class="group relative flex flex-col bg-white/60 rounded-2xl border border-papalut-mustard/30 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition"
+    >
+      {% if p.en_promocion %}
+      <span
+        class="absolute top-3 left-3 z-10 bg-papalut-terracota text-papalut-bg text-[10px] font-semibold uppercase tracking-widest px-3 py-1 rounded-full shadow"
+        >🔥 Oferta</span
+      >
+      {% endif %}
+      <a
+        href="{% url 'detalle_producto' p.slug %}"
+        class="aspect-square bg-[#FAF7F2] flex items-center justify-center overflow-hidden"
+      >
+        {% if p.imagen %}
+        <img
+          src="{{ p.imagen.url }}"
+          alt="{{ p.nombre }}"
+          class="w-full h-full object-contain p-2 group-hover:scale-105 transition duration-500"
+        />
+        {% else %}
+        <span class="font-serif text-6xl text-papalut-terracota/60"
+          >{{ p.nombre|first }}</span
+        >
+        {% endif %}
+      </a>
+
+      <div class="flex flex-col flex-1 p-6">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs uppercase tracking-[0.2em] text-papalut-salvia"
+            >{{ p.categoria.nombre }}</span
+          >
+          {% if p.destacado %}
+          <span
+            class="text-[10px] uppercase tracking-widest bg-papalut-mustard/30 text-papalut-earth px-2 py-1 rounded-full"
+            >Destacado</span
+          >
           {% endif %}
-        </a>
-
-        <div class="flex flex-col flex-1 p-6">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs uppercase tracking-[0.2em] text-papalut-salvia">{{ p.categoria.nombre }}</span>
-            {% if p.destacado %}
-              <span class="text-[10px] uppercase tracking-widest bg-papalut-mustard/30 text-papalut-earth px-2 py-1 rounded-full">Destacado</span>
-            {% endif %}
-          </div>
-
-          <h2 class="font-serif text-2xl font-semibold mb-2">
-            <a href="{% url 'detalle_producto' p.slug %}" class="hover:text-papalut-terracota transition">{{ p.nombre }}</a>
-          </h2>
-          <p class="text-sm opacity-80 mb-4">{{ p.descripcion }}</p>
-
-          <dl class="text-xs space-y-1 mb-6">
-            {% if p.notas_olfativas %}
-              <div class="flex gap-2"><dt class="font-medium text-papalut-terracota">Aroma:</dt><dd class="opacity-80">{{ p.notas_olfativas }}</dd></div>
-            {% endif %}
-            {% if p.dimensiones %}
-              <div class="flex gap-2"><dt class="font-medium text-papalut-terracota">Medidas:</dt><dd class="opacity-80">{{ p.dimensiones }}</dd></div>
-            {% endif %}
-          </dl>
-
-          {% if p.precio_unitario %}
-            <p class="mb-4 font-serif text-2xl font-semibold text-papalut-terracota">
-              ${{ p.precio_unitario }}
-            </p>
-          {% endif %}
-
-          <a href="{{ p.whatsapp_url }}" target="_blank" rel="noopener"
-             class="mt-auto inline-flex items-center justify-center gap-2 bg-papalut-salvia text-white text-sm px-4 py-3 rounded-full hover:bg-papalut-earth transition">
-            Consultar por WhatsApp
-          </a>
         </div>
-      </article>
+
+        <h2 class="font-serif text-2xl font-semibold mb-2">
+          <a
+            href="{% url 'detalle_producto' p.slug %}"
+            class="hover:text-papalut-terracota transition"
+            >{{ p.nombre }}</a
+          >
+        </h2>
+        <p class="text-sm opacity-80 mb-4">{{ p.descripcion }}</p>
+
+        <dl class="text-xs space-y-1 mb-6">
+          {% if p.notas_olfativas %}
+          <div class="flex gap-2">
+            <dt class="font-medium text-papalut-terracota">Aroma:</dt>
+            <dd class="opacity-80">{{ p.notas_olfativas }}</dd>
+          </div>
+          {% endif %} {% if p.dimensiones %}
+          <div class="flex gap-2">
+            <dt class="font-medium text-papalut-terracota">Medidas:</dt>
+            <dd class="opacity-80">{{ p.dimensiones }}</dd>
+          </div>
+          {% endif %}
+        </dl>
+
+        {% if p.precio_oferta or p.precio_unitario %}
+        <p class="mb-4 font-serif text-2xl font-semibold text-papalut-terracota">
+          {% if p.precio_oferta %}${{ p.precio_oferta }}{% else %}${{ p.precio_unitario }}{% endif %}
+          {% if p.precio_oferta and p.precio_unitario %}
+          <span class="ml-2 text-sm font-normal opacity-60 line-through">${{ p.precio_unitario }}</span>
+          {% endif %}
+        </p>
+        {% endif %}
+
+        <a
+          href="{{ p.whatsapp_url }}"
+          target="_blank"
+          rel="noopener"
+          class="mt-auto inline-flex items-center justify-center gap-2 bg-papalut-salvia text-white text-sm px-4 py-3 rounded-full hover:bg-papalut-earth transition"
+        >
+          Consultar por WhatsApp
+        </a>
+      </div>
+    </article>
     {% empty %}
-      <p class="col-span-full text-center py-16 opacity-60">Aún no hay productos disponibles en esta categoría.</p>
+    <p class="col-span-full text-center py-16 opacity-60">
+      Aún no hay productos disponibles en esta categoría.
+    </p>
     {% endfor %}
   </div>
 </section>

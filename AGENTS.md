@@ -12,13 +12,13 @@ Stack: Django 6.1 + SQLite, Django Templates, Tailwind CSS (CDN) y Vanilla JS.
 - Servidor de desarrollo: `venv\Scripts\python.exe manage.py runserver`
 - Migraciones: `... makemigrations` → `... migrate` (SQLite en `db.sqlite3`, ignorado).
 - Admin: `... createsuperuser` y entra en `/admin/`.
-- Datos de ejemplo: `venv\Scripts\python.exe seed_data.py` (idempotente; recrea categorías y productos por `slug`).
+- Datos de ejemplo: `venv\Scripts\python.exe seed_data.py` (idempotente; recrea categorías y productos por `slug`, y asegura `ConfiguracionSitio` + `RedSocial`).
 - Dependencias: `venv\Scripts\python.exe -m pip install <pkg>` y luego refresca `requirements.txt` con `pip freeze`.
 
 ## Estructura
 
 - `config/` — paquete del proyecto (settings, urls, wsgi/asgi).
-- `catalogo/` — app principal: modelos `Categoria`, `Producto` e `ImagenProducto`; `views.py`, `admin.py` (con inline de galería).
+- `catalogo/` — app principal: modelos `Categoria`, `Producto`, `ImagenProducto`, `ConfiguracionSitio` (singleton, pk=1) y `RedSocial`; `views.py`, `admin.py` (inline de galería).
 - `templates/base.html` — layout con Tailwind CDN, navbar y footer; bloques `title`, `content`, `scripts`.
 - `templates/catalogo/` — `inicio.html` (catálogo), `detalle_producto.html` y `calculadoras.html`.
 - `static/` — estáticos globales (`STATICFILES_DIRS`).
@@ -26,19 +26,21 @@ Stack: Django 6.1 + SQLite, Django Templates, Tailwind CSS (CDN) y Vanilla JS.
 
 ## Rutas y datos
 
-- `/` → `inicio`: lista productos `activo=True`; filtra por `?categoria=<slug>` (slug inválido = sin filtro).
+- `/` → `inicio`: lista productos `activo=True`; filtra por `?categoria=<slug>` (slug inválido = sin filtro) y por `?promociones=1` (`en_promocion=True`).
 - `/producto/<slug>/` → `detalle_producto`: `get_object_or_404` + `prefetch_related('imagenes_secundarias')`; galería por JS cliente.
-- `/herramientas/` → `calculadoras`: cálculos 100% en JS cliente, sin recargar.
-- `catalogo/context_processors.papalut` expone `whatsapp_number` a todas las plantillas (registrado en `settings.TEMPLATES`); el navbar lo usa.
+- `/herramientas/` → `calculadoras`: cálculos 100% en JS cliente (sin recargar). Premisa del "método del agua" (1 g = 1 ml = 1 cm³); cemento con modos directo/tara y proporción 1:2 / 1:1.
+- `catalogo/context_processors.papalut` (registrado en `settings.TEMPLATES`) expone `configuracion` (`ConfiguracionSitio.get_solo()`), `redes_sociales` (activas) y `site_logo`; tolera la BD sin migrar devolviendo valores por defecto.
 
 ## Quirks a recordar
 
 - Django 6.1: `TEMPLATES['DIRS']` es lista; el email usa `MAILERS` (ya no `EMAIL_BACKEND`).
-- `WHATSAPP_NUMBER` vive en `config/settings.py`, sobrescribible por variable de entorno. Es un placeholder: reemplázalo por el número real (formato internacional sin `+`).
+- Toda la config del sitio vive en el admin (`ConfiguracionSitio`): nombre, número de WhatsApp, mensaje de contacto y banner. `settings.WHATSAPP_NUMBER` ya **no existe**; `Producto.whatsapp_url` usa el número de `ConfiguracionSitio`.
 - `Producto`: helper `_whatsapp_url(mensaje)`; `whatsapp_url` (tarjeta) y `whatsapp_url_detalle` (precios presentes, omite mayoreo si el flag está off).
 - `mostrar_precio_mayoreo` controla la card mayorista del detalle, el bloque de precios y la mención en `whatsapp_url_detalle`.
-- Logo del navbar: se resuelve solo `static/images/logo.<ext>` (png/svg/webp/jpg/jpeg) vía `catalogo.context_processors.papalut` → `site_logo`; sin archivo solo se muestra el wordmark.
+- Logo del navbar: se resuelve solo `static/images/logo.<ext>` (png/svg/webp/jpg/jpeg); sin archivo solo se muestra el wordmark.
+- Promociones: `en_promocion` + `precio_oferta` en `Producto` (badge "Oferta" y precio tachado en catálogo y detalle). El banner usa `mostrar_banner_anuncio`/`texto_banner_anuncio`/`enlace_banner_anuncio`.
 - `templates/` y `static/` usan `.gitkeep` para versionarse vacías.
+- No pases las plantillas por formateadores HTML genéricos: pueden partir un tag `{% ... %}` entre líneas y Django no admite tags multilínea (`TemplateSyntaxError: Invalid block tag`). Corre `manage.py check` tras formatear.
 
 ## Identidad Visual
 
