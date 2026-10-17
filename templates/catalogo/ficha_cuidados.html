@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Cuidados de {{ ficha.producto.nombre }} · Papalut{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-6 py-12">
+
+  <a href="{% url 'detalle_producto' ficha.producto.slug %}"
+     class="inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-papalut-salvia hover:text-papalut-terracota transition mb-10">
+    &larr; Volver a {{ ficha.producto.nombre }}
+  </a>
+
+  <header class="text-center mb-12">
+    <span class="text-xs uppercase tracking-[0.4em] text-papalut-terracota">Ficha botánica</span>
+    <h1 class="font-serif text-4xl md:text-5xl font-semibold mt-3 mb-2">{{ ficha.producto.nombre }}</h1>
+    <p class="font-serif italic text-xl text-papalut-salvia">{{ ficha.nombre_cientifico }}</p>
+    {% if ficha.familia or ficha.origen %}
+      <p class="text-sm opacity-70 mt-3">
+        {% if ficha.familia %}Familia: {{ ficha.familia }}{% endif %}
+        {% if ficha.familia and ficha.origen %} · {% endif %}
+        {% if ficha.origen %}Origen: {{ ficha.origen }}{% endif %}
+      </p>
+    {% endif %}
+  </header>
+
+  <!-- Galería de referencia -->
+  <div class="mb-12">
+    {% if ficha.producto.imagen or ficha.producto.imagenes_secundarias.all %}
+      <div class="bg-[#FAF7F2] rounded-xl border border-papalut-mustard/20 shadow-sm p-4 flex items-center justify-center overflow-hidden">
+        {% if ficha.producto.imagen %}
+          <img id="ficha-imagen-principal" src="{{ ficha.producto.imagen.url }}" alt="{{ ficha.producto.nombre }}" class="max-h-96 w-auto object-contain mx-auto transition duration-500">
+        {% else %}
+          <img id="ficha-imagen-principal" src="{{ ficha.producto.imagenes_secundarias.all.0.imagen.url }}" alt="{{ ficha.producto.nombre }}" class="max-h-96 w-auto object-contain mx-auto transition duration-500">
+        {% endif %}
+      </div>
+
+      {% if ficha.producto.imagenes_secundarias.all %}
+        <div class="flex flex-wrap justify-center gap-3 mt-4">
+          {% if ficha.producto.imagen %}
+            <button type="button" class="ficha-miniatura w-20 h-20 rounded-xl border-2 border-transparent bg-[#FAF7F2] overflow-hidden hover:border-papalut-terracota transition" data-src="{{ ficha.producto.imagen.url }}" aria-label="Foto principal de {{ ficha.producto.nombre }}">
+              <img src="{{ ficha.producto.imagen.url }}" alt="{{ ficha.producto.nombre }} - portada" class="w-full h-full object-contain p-1">
+            </button>
+          {% endif %}
+          {% for foto in ficha.producto.imagenes_secundarias.all %}
+            <button type="button" class="ficha-miniatura w-20 h-20 rounded-xl border-2 border-transparent bg-[#FAF7F2] overflow-hidden hover:border-papalut-terracota transition" data-src="{{ foto.imagen.url }}" aria-label="Imagen de referencia {{ forloop.counter }}">
+              <img src="{{ foto.imagen.url }}" alt="{{ ficha.producto.nombre }} - referencia {{ forloop.counter }}" class="w-full h-full object-contain p-1">
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="bg-[#FAF7F2] rounded-xl border border-dashed border-papalut-mustard/40 shadow-sm h-72 flex flex-col items-center justify-center text-center px-6">
+        <span class="font-serif text-5xl text-papalut-terracota/40">{{ ficha.producto.nombre|first }}</span>
+        <p class="mt-4 text-sm italic opacity-60">(Fotografía botánica en preparación)</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Parámetros rápidos -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
+    <div class="bg-white/60 border border-papalut-mustard/30 rounded-2xl p-4 text-center">
+      <span class="text-2xl">☀️</span>
+      <p class="text-[10px] uppercase tracking-widest text-papalut-mustard mt-1 mb-1">Luz</p>
+      <p class="text-sm leading-snug">{{ ficha.luz }}</p>
+    </div>
+    <div class="bg-white/60 border border-papalut-mustard/30 rounded-2xl p-4 text-center">
+      <span class="text-2xl">💧</span>
+      <p class="text-[10px] uppercase tracking-widest text-papalut-mustard mt-1 mb-1">Riego</p>
+      <p class="text-sm leading-snug">{{ ficha.riego }}</p>
+    </div>
+    <div class="bg-white/60 border border-papalut-mustard/30 rounded-2xl p-4 text-center">
+      <span class="text-2xl">🌡️</span>
+      <p class="text-[10px] uppercase tracking-widest text-papalut-mustard mt-1 mb-1">Temperatura</p>
+      <p class="text-sm leading-snug">{{ ficha.temperatura|default:"Sin dato" }}</p>
+    </div>
+    <div class="bg-white/60 border border-papalut-mustard/30 rounded-2xl p-4 text-center">
+      <span class="text-2xl">🪴</span>
+      <p class="text-[10px] uppercase tracking-widest text-papalut-mustard mt-1 mb-1">Sustrato</p>
+      <p class="text-sm leading-snug">{{ ficha.suelo_sustrato|default:"Sin dato" }}</p>
+    </div>
+  </div>
+
+  <!-- Cuidados especiales -->
+  <div class="space-y-6">
+    <article class="bg-white/60 border border-papalut-mustard/30 rounded-2xl p-6">
+      <h2 class="font-serif text-2xl font-semibold mb-3">Cuidados especiales</h2>
+      <dl class="space-y-3 text-sm">
+        <div>
+          <dt class="font-medium text-papalut-terracota">Riego</dt>
+          <dd class="opacity-80">{{ ficha.riego }}</dd>
+        </div>
+        {% if ficha.abonado %}
+          <div>
+            <dt class="font-medium text-papalut-terracota">Abonado</dt>
+            <dd class="opacity-80">{{ ficha.abonado }}</dd>
+          </div>
+        {% endif %}
+        {% if ficha.plagas %}
+          <div>
+            <dt class="font-medium text-papalut-terracota">Plagas comunes</dt>
+            <dd class="opacity-80">{{ ficha.plagas }}</dd>
+          </div>
+        {% endif %}
+        {% if ficha.notas_adicionales %}
+          <div>
+            <dt class="font-medium text-papalut-terracota">Notas</dt>
+            <dd class="opacity-80">{{ ficha.notas_adicionales }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+    </article>
+
+    {% if ficha.propagacion %}
+      <article class="bg-white/60 border border-papalut-mustard/30 rounded-2xl p-6">
+        <h2 class="font-serif text-2xl font-semibold mb-3">Propagación</h2>
+        <p class="text-sm opacity-80">{{ ficha.propagacion }}</p>
+      </article>
+    {% endif %}
+
+    {% if ficha.advertencia_toxicidad %}
+      <article class="bg-papalut-terracota/10 border border-papalut-terracota/40 rounded-2xl p-6">
+        <h2 class="font-serif text-2xl font-semibold mb-3 text-papalut-terracota">⚠️ Advertencia</h2>
+        <p class="text-sm opacity-90">{{ ficha.advertencia_toxicidad }}</p>
+      </article>
+    {% endif %}
+  </div>
+
+  <div class="text-center mt-12">
+    <a href="{{ ficha.whatsapp_url }}" target="_blank" rel="noopener"
+       class="inline-flex items-center justify-center gap-2 bg-papalut-salvia text-white text-sm uppercase tracking-widest px-8 py-4 rounded-full hover:bg-papalut-earth transition">
+      Consultar dudas sobre mi planta por WhatsApp
+    </a>
+  </div>
+</section>
+
+{% if relacionados %}
+<section class="mt-16 pt-10 border-t border-papalut-mustard/20 max-w-5xl mx-auto px-4">
+  <div class="text-center mb-8">
+    <span class="text-xs uppercase tracking-widest text-papalut-mustard font-semibold">Descubre más</span>
+    <h2 class="text-2xl md:text-3xl font-serif text-papalut-earth mt-1">También te podría interesar</h2>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+    {% for rel in relacionados %}
+      <a href="{% url 'detalle_producto' rel.slug %}" class="group bg-white rounded-lg p-3 border border-papalut-mustard/20 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+        <div class="aspect-square bg-[#FAF7F2] rounded-md overflow-hidden mb-3 flex items-center justify-center p-2">
+          {% if rel.imagen %}
+            <img src="{{ rel.imagen.url }}" alt="{{ rel.nombre }}" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+          {% else %}
+            <span class="text-[11px] text-papalut-earth/40 italic">Sin imagen</span>
+          {% endif %}
+        </div>
+        <div>
+          <span class="text-[10px] uppercase tracking-wider text-papalut-salvia font-semibold">{{ rel.categoria.nombre }}</span>
+          <h3 class="font-serif text-sm font-semibold text-papalut-earth mt-0.5 line-clamp-1 group-hover:text-papalut-terracota transition">{{ rel.nombre }}</h3>
+          {% if rel.esta_en_oferta and rel.precio_oferta %}
+            <div class="mt-1 flex items-baseline gap-1.5">
+              <span class="text-xs text-gray-400 line-through">${{ rel.precio_unitario }}</span>
+              <span class="text-xs font-bold text-papalut-terracota">${{ rel.precio_oferta }}</span>
+            </div>
+          {% elif rel.precio_unitario %}
+            <p class="text-xs font-medium text-papalut-earth/80 mt-1">${{ rel.precio_unitario }}</p>
+          {% endif %}
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const imagenPrincipal = document.getElementById('ficha-imagen-principal');
+  const miniaturas = Array.from(document.querySelectorAll('.ficha-miniatura'));
+
+  function marcarActiva(posicion) {
+    miniaturas.forEach((miniatura, pos) => {
+      miniatura.classList.toggle('border-papalut-terracota', pos === posicion);
+    });
+  }
+
+  miniaturas.forEach((miniatura, posicion) => {
+    miniatura.addEventListener('click', () => {
+      if (imagenPrincipal) imagenPrincipal.src = miniatura.dataset.src;
+      marcarActiva(posicion);
+    });
+  });
+
+  if (miniaturas.length) marcarActiva(0);
+</script>
+{% endblock %}

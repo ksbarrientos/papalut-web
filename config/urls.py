@@ -10,6 +10,7 @@ urlpatterns = [
     path('', views.inicio, name='inicio'),
     path('herramientas/', views.calculadoras, name='calculadoras'),
     path('producto/<slug:slug>/', views.detalle_producto, name='detalle_producto'),
+    path('cuidados/<slug:slug>/', views.ficha_cuidados, name='ficha_cuidados'),
 ]
 
 if settings.DEBUG:

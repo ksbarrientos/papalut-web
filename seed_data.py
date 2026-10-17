@@ -7,7 +7,13 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from catalogo.models import Categoria, ConfiguracionSitio, Producto, RedSocial  # noqa: E402
+from catalogo.models import (  # noqa: E402
+    Categoria,
+    ConfiguracionSitio,
+    FichaPlanta,
+    Producto,
+    RedSocial,
+)
 
 CATEGORIAS = [
     {
@@ -77,6 +83,9 @@ PRODUCTOS = [
         'notas_olfativas': 'Cacao intenso con matices de frutos rojos y café.',
         'dimensiones': '90 g',
         'destacado': True,
+        'precio_unitario': '6.00',
+        'precio_docena': '60.00',
+        'precio_mayoreo': '4.50',
     },
     {
         'slug': 'bombones-cacao-naranja',
@@ -87,6 +96,9 @@ PRODUCTOS = [
         'notas_olfativas': 'Chocolate amargo y cáscara de naranja.',
         'dimensiones': '12 piezas, caja de 12 x 12 cm',
         'destacado': False,
+        'precio_unitario': '12.00',
+        'precio_docena': '120.00',
+        'precio_mayoreo': '9.00',
     },
     {
         'slug': 'suculenta-echeveria-elegans',
@@ -151,6 +163,47 @@ PRODUCTOS = [
 ]
 
 
+FICHAS = [
+    {
+        'producto': 'suculenta-echeveria-elegans',
+        'nombre_cientifico': 'Echeveria elegans',
+        'familia': 'Crassulaceae',
+        'origen': 'México central',
+        'luz': 'Interiores muy luminosos o semisombra con sol suave de la mañana.',
+        'riego': 'Riego profundo y espaciado: deja secar por completo el sustrato '
+                 'entre riegos. Reduce a una vez al mes en invierno.',
+        'temperatura': 'Ideal entre 15 y 25 °C; protege de heladas (< 5 °C).',
+        'suelo_sustrato': 'Sustrato para cactus y suculentas con excelente drenaje.',
+        'abonado': 'Abono diluido para suculentas una vez al mes en primavera y verano.',
+        'propagacion': 'Por separación de retoños o por hojas: deja cicatrizar la '
+                       'herida 2 días antes de apoyarla sobre sustrato seco.',
+        'plagas': 'Cochinilla algodonosa y pulgones en brotes tiernos.',
+        'advertencia_toxicidad': '',
+        'notas_adicionales': 'Produce pequeñas flores rosadas en espiga durante la '
+                             'primavera. Retira hojas secas de la base para evitar hongos.',
+    },
+    {
+        'producto': 'cactus-san-pedro-joven',
+        'nombre_cientifico': 'Echinopsis pachanoi (sin. Trichocereus pachanoi)',
+        'familia': 'Cactaceae',
+        'origen': 'Andes de Ecuador y Perú',
+        'luz': 'Pleno sol a semisombra; aclimatar poco a poco al sol directo.',
+        'riego': 'Moderado en primavera y verano, dejando secar por completo el '
+                 'sustrato entre riegos. Casi nulo en invierno.',
+        'temperatura': 'Tolera el calor intenso; proteger de heladas (< 5 °C).',
+        'suelo_sustrato': 'Sustrato mineral para cactus con drenaje excelente.',
+        'abonado': 'Abono para cactus a media dosis una vez al mes en verano.',
+        'propagacion': 'Por esquejes de tallo: cortar, dejar cicatrizar de 1 a 2 '
+                       'semanas y plantar en sustrato seco.',
+        'plagas': 'Cochinilla algodonosa y araña roja en ambientes secos.',
+        'advertencia_toxicidad': 'Contiene alcaloides: manipular con guantes y '
+                                 'mantener fuera del alcance de niños y mascotas.',
+        'notas_adicionales': 'Crecimiento columnar; en plantas maduras florece de '
+                             'noche con grandes flores blancas.',
+    },
+]
+
+
 def seed():
     categorias = {}
     for data in CATEGORIAS:
@@ -165,21 +218,30 @@ def seed():
         categorias[data['slug']] = categoria
 
     for data in PRODUCTOS:
-        Producto.objects.update_or_create(
-            slug=data['slug'],
-            defaults={
-                'categoria': categorias[data['categoria']],
-                'nombre': data['nombre'],
-                'descripcion': data['descripcion'],
-                'notas_olfativas': data['notas_olfativas'],
-                'dimensiones': data['dimensiones'],
-                'destacado': data['destacado'],
-                'activo': True,
-            },
-        )
+        defaults = {
+            'categoria': categorias[data['categoria']],
+            'nombre': data['nombre'],
+            'descripcion': data['descripcion'],
+            'notas_olfativas': data['notas_olfativas'],
+            'dimensiones': data['dimensiones'],
+            'destacado': data['destacado'],
+            'activo': True,
+        }
+        # Solo se sobrescriben los precios declarados; el resto se respeta.
+        for campo in ('precio_unitario', 'precio_docena', 'precio_mayoreo'):
+            if campo in data:
+                defaults[campo] = data[campo]
+
+        Producto.objects.update_or_create(slug=data['slug'], defaults=defaults)
+
+    for data in FICHAS:
+        producto = Producto.objects.get(slug=data['producto'])
+        defaults = {campo: valor for campo, valor in data.items() if campo != 'producto'}
+        FichaPlanta.objects.update_or_create(producto=producto, defaults=defaults)
 
     print(f'Categorías: {Categoria.objects.count()}')
     print(f'Productos: {Producto.objects.count()}')
+    print(f'Fichas botánicas: {FichaPlanta.objects.count()}')
 
     configuracion = ConfiguracionSitio.get_solo()
     if configuracion.numero_whatsapp in ('', '50300000000'):

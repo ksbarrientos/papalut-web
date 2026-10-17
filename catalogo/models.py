@@ -1,6 +1,9 @@
 from urllib.parse import quote
 
 from django.db import models
+from django.urls import reverse
+
+from .qr import build_qr_data_uri, build_qr_png
 
 
 class Categoria(models.Model):
@@ -69,21 +72,33 @@ class Producto(models.Model):
         return ConfiguracionSitio.get_solo().whatsapp_url(mensaje)
 
     @property
+    def esta_en_oferta(self):
+        """Oferta real: promoción activa y con precio de oferta definido."""
+        return self.en_promocion and self.precio_oferta is not None
+
+    @property
+    def tiene_precios(self):
+        """True si el producto define al menos un precio."""
+        return any((self.precio_unitario, self.precio_docena, self.precio_mayoreo))
+
+    @property
     def whatsapp_url(self):
         return self._whatsapp_url(f'Hola Papalut, me interesa el producto "{self.nombre}".')
 
     @property
     def whatsapp_url_detalle(self):
-        precios = []
-        if self.precio_unitario:
-            precios.append('individual')
-        if self.precio_docena:
-            precios.append('docena')
-        if self.precio_mayoreo and self.mostrar_precio_mayoreo:
-            precios.append('mayoreo')
-
-        detalle = '/'.join(precios) if precios else 'precios'
-        mensaje = f'Hola Papalut, me interesa consultar por {self.nombre} (precios {detalle}).'
+        if self.tiene_precios:
+            mensaje = (
+                f'Hola Papalut, me gustaría consultar disponibilidad para '
+                f'ordenar: {self.nombre}.'
+            )
+            if self.esta_en_oferta:
+                mensaje += ' ¡Está en promoción!'
+        else:
+            mensaje = (
+                f'Hola Papalut, me gustaría consultar los precios y '
+                f'disponibilidad de: {self.nombre}.'
+            )
         return self._whatsapp_url(mensaje)
 
 
@@ -103,10 +118,123 @@ class ImagenProducto(models.Model):
         return f'Imagen de {self.producto.nombre} (#{self.orden})'
 
 
+class FichaPlanta(models.Model):
+    """Guía de cuidados de una planta, enlazada 1:1 con su producto."""
+
+    producto = models.OneToOneField(
+        Producto,
+        on_delete=models.CASCADE,
+        related_name='ficha_botanica',
+        limit_choices_to={'categoria__tipo': 'plantas'},
+    )
+    nombre_cientifico = models.CharField(
+        max_length=150, help_text="Ej: Adenium obesum",
+    )
+    familia = models.CharField(
+        max_length=100, blank=True, help_text="Ej: Apocynaceae",
+    )
+    origen = models.CharField(
+        max_length=150, blank=True,
+        help_text="Ej: Este de África, Sur de Arabia",
+    )
+    luz = models.CharField(
+        max_length=200, help_text="Ej: Pleno sol o interiores muy luminosos",
+    )
+    riego = models.TextField(
+        help_text="Frecuencia y pautas de riego según estación",
+    )
+    temperatura = models.CharField(
+        max_length=150, blank=True,
+        help_text="Ej: Tolera calor, proteger de < 10°C",
+    )
+    suelo_sustrato = models.CharField(
+        max_length=200, blank=True,
+        help_text="Ej: Sustrato arenoso con excelente drenaje",
+    )
+    abonado = models.CharField(
+        max_length=200, blank=True,
+        help_text="Ej: 2 a 3 veces en verano con abono para suculentas",
+    )
+    propagacion = models.TextField(
+        blank=True, help_text="Cómo propagar por esquejes o retoños",
+    )
+    plagas = models.CharField(
+        max_length=200, blank=True,
+        help_text="Ej: Pulgones, cochinilla algodonosa",
+    )
+    advertencia_toxicidad = models.CharField(
+        max_length=255, blank=True,
+        help_text="Ej: Savia irritante, mantener alejado de mascotas",
+    )
+    notas_adicionales = models.TextField(
+        blank=True,
+        help_text="Detalles de floración, poda o reposo invernal",
+    )
+
+    class Meta:
+        verbose_name = 'ficha botánica'
+        verbose_name_plural = 'fichas botánicas'
+
+    def __str__(self):
+        return f'Ficha de {self.producto.nombre}'
+
+    def get_relative_url(self):
+        return reverse('ficha_cuidados', args=[self.producto.slug])
+
+    def get_absolute_url(self, base_url=None):
+        # El dominio configurado en la BD tiene prioridad; el host de la
+        # petición solo se usa como respaldo (p. ej. en desarrollo).
+        configured = ConfiguracionSitio.get_solo().url_publica_sitio
+        base = (configured or base_url or '').rstrip('/')
+        return f'{base}{self.get_relative_url()}'
+
+    def get_qr_png(self, *, base_url=None, box_size=16, border=4):
+        return build_qr_png(self.get_absolute_url(base_url), box_size=box_size, border=border)
+
+    def get_qr_data_uri(self, *, base_url=None, box_size=8, border=2):
+        return build_qr_data_uri(self.get_absolute_url(base_url), box_size=box_size, border=border)
+
+    @property
+    def whatsapp_url(self):
+        mensaje = (
+            f'Hola Papalut, tengo una consulta sobre el cuidado de mi '
+            f'{self.producto.nombre}.'
+        )
+        return ConfiguracionSitio.get_solo().whatsapp_url(mensaje)
+
+
 class ConfiguracionSitio(models.Model):
     """Configuración global editable desde el admin. Fila única (pk=1)."""
 
     nombre_tienda = models.CharField(max_length=100, default="Papalut")
+    url_publica_sitio = models.URLField(
+        blank=True,
+        verbose_name="URL pública del sitio",
+        help_text="Dominio usado en los códigos QR de las fichas (ej. "
+                  "https://papalut.com). Si se deja vacío se usa el host actual.",
+    )
+    hero_subtitulo_superior = models.CharField(
+        max_length=100,
+        default="HECHO A MANO",
+        verbose_name="Texto superior pequeño (Kicker)",
+    )
+    hero_titulo = models.CharField(
+        max_length=150,
+        default="Catálogo Papalut",
+        verbose_name="Título principal del catálogo",
+    )
+    hero_descripcion = models.TextField(
+        default=(
+            "Velas, chocolates, plantas, macetas y jabones creados en pequeños "
+            "lotes, con la calma y el detalle de lo artesanal."
+        ),
+        verbose_name="Párrafo descriptivo principal",
+    )
+    eslogan_marca = models.CharField(
+        max_length=200,
+        default="Aromas que transforman espacios.",
+        verbose_name="Eslogan de la marca (Hero y Footer)",
+    )
     numero_whatsapp = models.CharField(
         max_length=20,
         default="50300000000",
