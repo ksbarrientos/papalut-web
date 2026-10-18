@@ -39,23 +39,63 @@
   {% endif %}
 
   <header class="sticky top-0 z-50 bg-papalut-bg/90 backdrop-blur border-b border-papalut-mustard/30">
-    <nav class="max-w-6xl mx-auto flex items-center justify-between gap-4 px-6 py-4">
-      <a href="{% url 'inicio' %}" class="flex items-center gap-3">
+    <nav class="max-w-6xl mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 py-4">
+      <a href="{% url 'inicio' %}" class="flex items-center gap-3 min-w-0">
         {% if site_logo %}
-          <img src="{% static site_logo %}" alt="{{ configuracion.nombre_tienda }}" class="h-9 w-auto object-contain">
+          <img src="{% static site_logo %}" alt="{{ configuracion.nombre_tienda }}" class="h-9 w-auto object-contain shrink-0">
         {% endif %}
-        <span class="font-serif text-2xl tracking-[0.3em] font-semibold">{{ configuracion.nombre_tienda }}</span>
+        <span class="font-serif text-xl sm:text-2xl tracking-[0.3em] font-semibold">{{ configuracion.nombre_tienda }}</span>
       </a>
+
       <div class="hidden md:flex items-center gap-8 text-xs uppercase tracking-[0.2em]">
         <a href="{% url 'inicio' %}" class="hover:text-papalut-terracota transition">Catálogo</a>
         <a href="{% url 'calculadoras' %}" class="hover:text-papalut-terracota transition">Calculadoras de Taller</a>
       </div>
-      <a href="https://wa.me/{{ configuracion.numero_whatsapp }}?text={{ configuracion.mensaje_whatsapp_general|urlencode }}" target="_blank" rel="noopener"
-         class="bg-papalut-terracota text-papalut-bg text-xs uppercase tracking-[0.2em] px-4 py-2 rounded-full hover:bg-papalut-earth transition">
-        Contacto
-      </a>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="https://wa.me/{{ configuracion.numero_whatsapp }}?text={{ configuracion.mensaje_whatsapp_general|urlencode }}" target="_blank" rel="noopener"
+           class="bg-papalut-terracota text-papalut-bg text-xs uppercase tracking-[0.2em] px-3 py-1.5 md:px-4 md:py-2 rounded-full hover:bg-papalut-earth transition whitespace-nowrap">
+          Contacto
+        </a>
+
+        <button type="button" id="menu-toggle" aria-controls="mobile-menu" aria-expanded="false" aria-label="Abrir menú"
+                class="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-full border border-papalut-mustard/50 text-papalut-earth hover:bg-papalut-terracota hover:text-papalut-bg transition">
+          <svg id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-5 h-5">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+          <svg id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-5 h-5 hidden">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+      </div>
     </nav>
+
+    <div id="mobile-menu" class="hidden md:hidden border-t border-papalut-mustard/30 bg-papalut-bg">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex flex-col text-xs uppercase tracking-[0.2em]">
+        <a href="{% url 'inicio' %}" class="py-4 border-b border-papalut-mustard/20 hover:text-papalut-terracota transition">Catálogo</a>
+        <a href="{% url 'calculadoras' %}" class="py-4 hover:text-papalut-terracota transition">Calculadoras de Taller</a>
+      </div>
+    </div>
   </header>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('menu-toggle');
+      var menu = document.getElementById('mobile-menu');
+      if (!toggle || !menu) return;
+
+      var iconMenu = document.getElementById('icon-menu');
+      var iconClose = document.getElementById('icon-close');
+
+      toggle.addEventListener('click', function () {
+        var isOpen = !menu.classList.toggle('hidden');
+        iconMenu.classList.toggle('hidden', isOpen);
+        iconClose.classList.toggle('hidden', !isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        toggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+      });
+    })();
+  </script>
 
   <main class="flex-1">
     {% block content %}{% endblock %}
